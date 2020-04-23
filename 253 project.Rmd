@@ -18,6 +18,4 @@ library(janitor)
 cbb <- read_csv("cbb.csv")
 ```
 
-
-
-hi
+Which stats are most important to predict tournament seed? 
