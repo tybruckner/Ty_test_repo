@@ -78,4 +78,4 @@ cbb %>%
 
 This is kind of confusing. It seems like a better 3 point percentage means teams have higher seeds (worse seeds). We should investigate further. 
 
-
+## Next step: figuring out to change DBL variables to integers so they are treated as quantitative in the plots!
