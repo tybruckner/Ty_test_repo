@@ -1,6 +1,6 @@
 ---
 title: "253 project"
-author: "Oriana Galasso"
+author: "Oriana Galasso and Ty Bruckner"
 date: "4/21/2020"
 output: html_document
 ---
@@ -19,38 +19,47 @@ cbb <- read_csv("cbb.csv")
 ```
 
 ```{r}
-cbb
+head(cbb)
 ```
 
 
-Which stats are most important to predict tournament seed? 
+## Tentative research question: Which stats or other predictors, such as conference,  are most important to predict NCAA tournament seed? 
+
 ```{r}
 cbb%>%
   ggplot(aes(x=W,y=SEED))+
   geom_point()+
   geom_smooth()
 ```
-Wins seem to coincide with a lower seed.
-```{r}
+
+Wins seem to coincide with a lower seed (better seed in the tournament). This makes sense.
+
+```{r, fig.height=3}
 cbb%>%
-  ggplot(aes(x=CONF,y=SEED))+
-  geom_point()
+  ggplot(aes(x=W,y=SEED))+
+  geom_point() +
+  facet_wrap(~CONF) +
+  geom_smooth(method = "lm")
 ```
-Some conferences are relegated to only recieving lower seeds.
+Here we can see wins and seeds faceted by conference. We see that many conferences almost exclusively receive low seeds (non- power five conferences). 
 
 ```{r}
 cbb%>%
   ggplot((aes(x=TOR,y=SEED)))+
-  geom_point()+
-  geom_smooth()
+  geom_point() +
+  geom_smooth(method = "lm")
 ```
+
+This makes sense-- teams with a lot of turnovers that they commit have higher seeds (worse seeds).
+
 ```{r}
 cbb%>%
   ggplot(aes(x=TORD,y=SEED))+
   geom_point()+
   geom_smooth()
 ```
-Defensive turnover rate does not seem like an effective predictor by itself.
+
+Defensive turnover rate (turnovers you force the other team do make) does not seem like an effective predictor by itself.
 
 ```{r}
 cbb%>%
@@ -61,6 +70,12 @@ cbb%>%
 
 Adjusted Tempo does not seem to affect seed by itself. 
 
+```{r}
+cbb %>%
+  ggplot(aes(x=`3P_O`, y=W)) +
+  geom_point() +geom_smooth(method = "lm")
+```
 
-I tried to start the plots. We can add more too. We might need to rearrange the Postseason variable to make it make sense. 
+This is kind of confusing. It seems like a better 3 point percentage means teams have higher seeds (worse seeds). We should investigate further. 
+
 
