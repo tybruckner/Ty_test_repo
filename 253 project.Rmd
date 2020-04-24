@@ -18,4 +18,49 @@ library(janitor)
 cbb <- read_csv("cbb.csv")
 ```
 
+```{r}
+cbb
+```
+
+
 Which stats are most important to predict tournament seed? 
+```{r}
+cbb%>%
+  ggplot(aes(x=W,y=SEED))+
+  geom_point()+
+  geom_smooth()
+```
+Wins seem to coincide with a lower seed.
+```{r}
+cbb%>%
+  ggplot(aes(x=CONF,y=SEED))+
+  geom_point()
+```
+Some conferences are relegated to only recieving lower seeds.
+
+```{r}
+cbb%>%
+  ggplot((aes(x=TOR,y=SEED)))+
+  geom_point()+
+  geom_smooth()
+```
+```{r}
+cbb%>%
+  ggplot(aes(x=TORD,y=SEED))+
+  geom_point()+
+  geom_smooth()
+```
+Defensive turnover rate does not seem like an effective predictor by itself.
+
+```{r}
+cbb%>%
+  ggplot(aes(x=ADJ_T,y=SEED))+
+  geom_point()+
+  geom_smooth()
+```
+
+Adjusted Tempo does not seem to affect seed by itself. 
+
+
+I tried to start the plots. We can add more too. We might need to rearrange the Postseason variable to make it make sense. 
+
