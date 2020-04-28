@@ -10,18 +10,55 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-library(tidyverse)
+library(tidyverse) #for plotting and summarizing
+library(GGally) #for nice scatterplot matrix 
+library(ggridges) #for joy/ridge plots
+library(corrplot) #for basic correlation matrix plot
+library(naniar) #for exploring missing values
+library(pdp) #for partial dependence plots, MARS models
+library(rpart.plot) #for plotting decision trees
+library(vip) #for importance plots
 library(janitor)
+#making things look nice
+library(lubridate) #for nice dates
+library(knitr) #for nice tables
+library(scales) #for nice labels on graphs
+library(gridExtra) #for arranging plots
+library(broom) #for nice model output
+library(janitor) #for nice names
+
+#data
+library(ISLR) #for data
+library(moderndive) #for data
+
+#modeling
+library(rsample) #for splitting data
+library(recipes) #for keeping track of transformations
+library(caret) #for modeling
+library(leaps) #for variable selection
+library(glmnet) #for LASSO
+library(earth) #for MARS models
+library(rpart) #for decision trees
+library(randomForest) #for bagging and random forests
+
 ```
 
 ```{r}
 cbb <- read_csv("cbb.csv")
+
+#Split the data into training and test groups
+set.seed(253) #for reproducibility
+cbb_split <- initial_split(cbb, 
+                             prop = .7)
+cbb_train <- training(cbb_split)
+cbb_test <- testing(cbb_split)
 ```
 
 ```{r}
 head(cbb)
 ```
 
+free throws attempted/field goals attempted 
 
 ## Tentative research question: Which stats or other predictors, such as conference,  are most important to predict NCAA tournament seed? 
 
@@ -45,8 +82,16 @@ Here we can see wins and seeds faceted by conference. We see that many conferenc
 
 ```{r}
 cbb%>%
-  ggplot((aes(x=TOR,y=SEED)))+
-  geom_point() +
+  ggplot(aes(x=W))+
+  geom_histogram() +
+  facet_wrap(~CONF)
+```
+
+
+```{r}
+cbb%>%
+  ggplot((aes(x=TOR,y=W)))+
+  geom_jitter() +
   geom_smooth(method = "lm")
 ```
 
@@ -54,7 +99,7 @@ This makes sense-- teams with a lot of turnovers that they commit have higher se
 
 ```{r}
 cbb%>%
-  ggplot(aes(x=TORD,y=SEED))+
+  ggplot(aes(x=TORD,y=W))+
   geom_point()+
   geom_smooth()
 ```
@@ -63,9 +108,9 @@ Defensive turnover rate (turnovers you force the other team do make) does not se
 
 ```{r}
 cbb%>%
-  ggplot(aes(x=ADJ_T,y=SEED))+
-  geom_point()+
-  geom_smooth()
+  ggplot(aes(x=ADJ_T,y=W))+
+  geom_jitter()+
+  geom_smooth(method = "lm")
 ```
 
 Adjusted Tempo does not seem to affect seed by itself. 
@@ -73,9 +118,79 @@ Adjusted Tempo does not seem to affect seed by itself.
 ```{r}
 cbb %>%
   ggplot(aes(x=`3P_O`, y=W)) +
-  geom_point() +geom_smooth(method = "lm")
+  geom_jitter() +geom_smooth(method = "lm")
 ```
 
-This is kind of confusing. It seems like a better 3 point percentage means teams have higher seeds (worse seeds). We should investigate further. 
+```{r}
+cbb %>%
+  ggplot(aes(x=`2P_O`, y=W)) +
+  geom_jitter() +geom_smooth(method = "lm")
+```
 
-## Next step: figuring out to change DBL variables to integers so they are treated as quantitative in the plots!
+```{r}
+cbb %>%
+  ggplot(aes(x=FTR, y=W)) +
+  geom_jitter() +geom_smooth(method = "lm")
+```
+
+```{r}
+cbb %>%
+  ggplot(aes(x=FTRD, y=W)) +
+  geom_jitter() +geom_smooth(method = "lm")
+```
+
+```{r}
+cbb %>%
+  ggplot(aes(x=BARTHAG, y=W)) +
+  geom_jitter() +geom_smooth()
+```
+
+Preds we're interested in: 
+
+3PO
+2PO
+FTRD
+TOR
+BARTHAG
+
+# Beginning modeling 
+
+## Linear Model
+
+
+
+```{r}
+set.seed(253)
+cbb_linear1 <- train(
+  W ~ `2P_O` + `3P_O` + FTRD + TOR + BARTHAG,
+  data = cbb_train, 
+  method = "lm",
+  trControl = trainControl(method = "cv", 
+                           number = 5))
+  na.action = na.omit
+
+
+cbb_linear1$results #average RMSE
+
+```
+
+```{r}
+head(cbb)
+```
+
+```{r}
+set.seed(253)
+cbb_linear2 <- train(
+  W ~ ADJOE + ADJDE + BARTHAG + `EFG_O` + `EFG_D` + TOR + TORD + ORB + DRB + FTR + FTRD + `2P_O` + `2P_D` + `3P_O` +`3P_D`+ `ADJ_T`,
+  data = cbb_train, 
+  method = "lm",
+  trControl = trainControl(method = "cv", 
+                           number = 5))
+  na.action = na.omit
+
+
+cbb_linear2$results #average RMSE
+```
+
+
+
