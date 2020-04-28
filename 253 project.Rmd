@@ -193,4 +193,33 @@ cbb_linear2$results #average RMSE
 ```
 
 
+```{r}
+lambda_grid <- 10^seq(-3, 1, length = 100)
+
+set.seed(712)
+cbb_lasso <- train(
+  W ~ .,
+  data = cbb_train %>% select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR),
+  method = "glmnet",
+  trControl = trainControl(method="cv",number=5),
+  tuneGrid = data.frame(alpha = 1, lambda = lambda_grid),
+  na.action = na.omit
+)
+```
+
+```{r}
+cbb_lasso$results
+```
+```{r}
+cbb_lasso$bestTune
+```
+```{r}
+coefficients(cbb_lasso$finalModel,.004037017)
+```
+I am confused on our interpretation here.
+
+
+
+
+
 
