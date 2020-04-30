@@ -181,7 +181,7 @@ head(cbb)
 ```{r}
 set.seed(253)
 cbb_linear2 <- train(
-  W ~ ADJOE + ADJDE + BARTHAG + `EFG_O` + `EFG_D` + TOR + TORD + ORB + DRB + FTR + FTRD + `2P_O` + `2P_D` + `3P_O` +`3P_D`+ `ADJ_T`, #model with all predictors
+  W ~ ADJOE + ADJDE + BARTHAG + `EFG_O` + `EFG_D` + TOR + TORD + ORB + DRB + FTR + FTRD + `2P_O` + `2P_D` + `3P_O` +`3P_D`+ `ADJ_T`,
   data = cbb_train, 
   method = "lm",
   trControl = trainControl(method = "cv", 
@@ -275,5 +275,4 @@ rpart.plot(cbb_tree$finalModel)
 ```{r}
 
 ```
-
 
