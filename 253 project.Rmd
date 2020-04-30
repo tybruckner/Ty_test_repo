@@ -196,7 +196,7 @@ cbb_linear2$results #average RMSE
 ```{r}
 lambda_grid <- 10^seq(-3, 1, length = 100)
 
-set.seed(712)
+set.seed(253)
 cbb_lasso <- train(
   W ~ .,
   data = cbb_train %>% select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR),
