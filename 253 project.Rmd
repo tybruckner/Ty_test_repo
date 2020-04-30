@@ -273,6 +273,8 @@ rpart.plot(cbb_tree$finalModel)
 ```
 
 ```{r}
-
+vip(cbb_tree$finalModel, num_features = 12, bar = FALSE)
 ```
+
+
 
