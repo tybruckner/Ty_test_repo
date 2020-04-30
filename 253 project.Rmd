@@ -277,5 +277,20 @@ vip(cbb_tree$finalModel, num_features = 12, bar = FALSE)
 ```
 
 
+```{r}
+set.seed(253)
+
+cbb_ADJOE <- train(
+  W ~ ADJOE,
+  data = cbb_train, 
+  method = "lm",
+  trControl = trainControl(method = "cv", 
+                           number = 5))
+  na.action = na.omit
+
+
+cbb_ADJOE$results #average RMSE
+
+```
 
 
