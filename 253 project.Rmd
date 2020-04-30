@@ -214,12 +214,65 @@ cbb_lasso$results
 cbb_lasso$bestTune
 ```
 ```{r}
-coefficients(cbb_lasso$finalModel,.004037017)
+coefficients(cbb_lasso$finalModel,.003351603)
 ```
 I am confused on our interpretation here.
 
+We need to transform variables I think?
+```{r}
+
+set.seed(253)
+knn_4 <- train(
+  W ~ .,
+  data = cbb_train%>%select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR),
+  method = "knn",
+  tuneGrid = data.frame(k = c(1,2,3,4,5,6)),
+  trControl = trainControl(method = "cv", number = 5),
+  na.action = na.omit
+)
+```
+
+```{r}
+knn_4$results
+```
+
+
+```{r}
+cbb_train%>%
+  mutate(pred_W = predict(knn_4, 
+                        newdata = cbb_train))%>% ggplot(aes(x = (W), y = (pred_W))) +
+  geom_point(size = .5, alpha = .5) +
+  geom_abline(color = "purple") +
+  geom_smooth(se = FALSE, color = "orange", size = .5) 
+```
 
 
 
+```{r}
+set.seed(253)
+cbb_tree <- train(
+  W ~ ADJOE + ADJDE + `EFG_O` + `EFG_D` + TOR + TORD + ORB + DRB + FTR + FTRD ,
+  data = cbb_train, 
+  method = "rpart",
+  trControl = trainControl(method = "cv",
+                           number = 5),
+    tuneGrid = data.frame(cp = 10^seq(-4, -2 , length = 20))
+)
 
+```
+
+```{r}
+cbb_tree$results
+```
+```{r}
+cbb_tree$bestTune
+```
+
+```{r}
+rpart.plot(cbb_tree$finalModel)
+```
+
+```{r}
+
+```
 
