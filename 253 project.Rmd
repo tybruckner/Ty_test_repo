@@ -181,7 +181,7 @@ head(cbb)
 ```{r}
 set.seed(253)
 cbb_linear2 <- train(
-  W ~ ADJOE + ADJDE + BARTHAG + `EFG_O` + `EFG_D` + TOR + TORD + ORB + DRB + FTR + FTRD + `2P_O` + `2P_D` + `3P_O` +`3P_D`+ `ADJ_T`,
+  W ~ ADJOE + ADJDE + BARTHAG + `EFG_O` + `EFG_D` + TOR + TORD + ORB + DRB + FTR + FTRD + `2P_O` + `2P_D` + `3P_O` +`3P_D`+ `ADJ_T`, #model with all predictors
   data = cbb_train, 
   method = "lm",
   trControl = trainControl(method = "cv", 
@@ -217,6 +217,7 @@ cbb_lasso$bestTune
 coefficients(cbb_lasso$finalModel,.004037017)
 ```
 I am confused on our interpretation here.
+
 
 
 
