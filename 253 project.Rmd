@@ -268,7 +268,7 @@ cbb_tree$results
 cbb_tree$bestTune
 ```
 
-```{r}
+```{r, fig.width=10, fig.height=10}
 rpart.plot(cbb_tree$finalModel)
 ```
 
