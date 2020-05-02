@@ -1,5 +1,5 @@
 ---
-title: "253_Project_Final"
+title: "Predicting Division One Men's Basketball Wins"
 author: "Ty Bruckner and Oriana Galasso"
 date: "5/1/2020"
 output: html_document
@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse) #for plotting and summarizing
 library(GGally) #for nice scatterplot matrix 
 library(ggridges) #for joy/ridge plots
@@ -43,7 +43,7 @@ library(randomForest) #for bagging and random forests
 
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 cbb <- read_csv("cbb.csv")
 
 #Split the data into training and test groups
@@ -88,6 +88,8 @@ However, the models we made including all of the variables in the dataset perfor
 # Results 
 
 We will 
+
+
 
 
 
