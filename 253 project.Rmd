@@ -219,7 +219,42 @@ coefficients(cbb_lasso$finalModel,.003351603)
 I am confused on our interpretation here.
 
 We need to transform variables I think?
+
 ```{r}
+knn_mod <- recipe(W ~ ., data = cbb_train%>% select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR)) %>%
+  step_center(all_numeric(), -all_outcomes()) %>%
+  step_scale(all_numeric(), -all_outcomes()) %>% 
+  step_dummy(all_nominal())
+
+set.seed(253)
+knn_adj <- train(
+  knn_mod,
+  data = cbb_train%>%select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR),
+  method = "knn",
+  tuneGrid = data.frame(k = c(1,2,3,4,5,6)),
+  trControl = trainControl(method = "cv", number = 5),
+  na.action = na.omit
+)
+```
+
+```{r}
+knn_adj$results
+```
+
+```{r}
+cbb_train%>%
+  mutate(pred_W = predict(knn_adj, 
+                        newdata = cbb_train))%>% ggplot(aes(x = (W), y = (pred_W))) +
+  geom_point(size = .5, alpha = .5) +
+  geom_abline(color = "purple") +
+  geom_smooth(se = FALSE, color = "orange", size = .5) 
+```
+
+```{r}
+knn_rec <- recipe(shares ~ ., data = news_train%>% select(-url)) %>%
+  step_center(all_numeric(), -all_outcomes()) %>%
+  step_scale(all_numeric(), -all_outcomes()) %>% 
+  step_dummy(all_nominal())
 
 set.seed(253)
 knn_4 <- train(
@@ -294,3 +329,4 @@ cbb_ADJOE$results #average RMSE
 ```
 
 
+hi
