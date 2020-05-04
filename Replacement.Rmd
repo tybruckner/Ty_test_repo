@@ -1,5 +1,5 @@
 ---
-title: "Predicting Division One Men's Basketball Wins"
+title: "Predicting Division One Men's Basketball Wins 2.0"
 author: "Ty Bruckner and Oriana Galasso"
 date: "5/1/2020"
 output: html_document
