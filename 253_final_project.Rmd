@@ -62,7 +62,7 @@ Our goal for this project is to create the model to pred
 
 ## Our research question 
 
-What type of machine learning model is the best type to predict wins in men's college basketball using popular basketball metrics that evaluate performance? 
+What type of machine learning model is the best type to predict wins in men's college basketball using popular metrics that evaluate performance? 
 
 # Response variable: Wins 
 
