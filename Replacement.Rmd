@@ -1,0 +1,182 @@
+---
+title: "Predicting Division One Men's Basketball Wins"
+author: "Ty Bruckner and Oriana Galasso"
+date: "5/1/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse) #for plotting and summarizing
+library(GGally) #for nice scatterplot matrix 
+library(ggridges) #for joy/ridge plots
+library(corrplot) #for basic correlation matrix plot
+library(naniar) #for exploring missing values
+library(pdp) #for partial dependence plots, MARS models
+library(rpart.plot) #for plotting decision trees
+library(vip) #for importance plots
+library(janitor)
+#making things look nice
+library(lubridate) #for nice dates
+library(knitr) #for nice tables
+library(scales) #for nice labels on graphs
+library(gridExtra) #for arranging plots
+library(broom) #for nice model output
+library(janitor) #for nice names
+
+#data
+library(ISLR) #for data
+library(moderndive) #for data
+
+#modeling
+library(rsample) #for splitting data
+library(recipes) #for keeping track of transformations
+library(caret) #for modeling
+library(leaps) #for variable selection
+library(glmnet) #for LASSO
+library(earth) #for MARS models
+library(rpart) #for decision trees
+library(randomForest) #for bagging and random forests
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+cbb <- read_csv("cbb.csv")
+
+#Split the data into training and test groups
+set.seed(253) #for reproducibility
+cbb_split <- initial_split(cbb, 
+                             prop = .7)
+cbb_train <- training(cbb_split)
+cbb_test <- testing(cbb_split)
+```
+
+# Introduction to the data and research question
+
+This data comes from Kaggle and was compiled and cleaned by Andrew Sundberg. This dataset is a compilation of all the win/loss records and other important statistics from all Division One men's basketball programs between 2016 and 2019 for the Power Five conferences (five biggest D1 conferences). It includes descriptive statistics like conference name and number of wins, in addition to statistics that evaluate play, such as adjusted offensive efficiency, adjusted defensive efficiency, 3 point percentage, free throws, BARTHAG (chance of beating an "average" Division One team), offensive and defensive turnovers, and 3 point percentages, among many other important performance based statistics. 
+
+Our goal for this project is to create the model to pred
+
+## Our research question 
+
+What type of machine learning model is the best type to predict wins in men's college basketball using popular metrics that evaluate performance? 
+
+# Response variable: Wins 
+
+```{r, echo=FALSE}
+cbb%>%
+  ggplot(aes(x=W)) +
+  geom_histogram(binwidth = 2) +
+  labs(x= "Distribution of Wins")
+```
+
+This illustrates that most teams have between 10 and 20 wins and that the response variable is reasonably distributed. This is promising for model making!
+
+## Explanatory Plots
+
+Here we are going to include other explanatory plots and descriptions. 
+
+# The Model Building Process
+
+Initially, we picked out a couple of predictors that we thought were most important in order to predict wins informed by our exploratory analysis, including 3 point percentage, 2 point percentage, free throw rate alllowed, turnovers, and BARTHAG (the team's likelihood of beating an "average" division one team). 
+
+However, the models we made including all of the variables in the dataset performed better, so our final models incorporate all of the performance based statistics in the dataset.
+
+# Results 
+
+We will discuss our best model based on RMSE here. We haven't ran the test data yet, so we will see which model performs the best! 
+
+
+
+Here are some of the models we've created so far. 
+
+Lasso
+
+```{r}
+lambda_grid <- 10^seq(-3, 1, length = 100)
+
+set.seed(253)
+cbb_lasso <- train(
+  W ~ .,
+  data = cbb_train %>% select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR),
+  method = "glmnet",
+  trControl = trainControl(method="cv",number=5),
+  tuneGrid = data.frame(alpha = 1, lambda = lambda_grid),
+  na.action = na.omit
+)
+
+cbb_lasso$results
+
+cbb_lasso$bestTune
+
+coefficients(cbb_lasso$finalModel,.003351603)
+
+```
+
+
+KNN
+
+```{r}
+knn_mod <- recipe(W ~ ., data = cbb_train%>% select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR)) %>%
+  step_center(all_numeric(), -all_outcomes()) %>%
+  step_scale(all_numeric(), -all_outcomes()) %>% 
+  step_dummy(all_nominal())
+
+set.seed(253)
+knn_adj <- train(
+  knn_mod,
+  data = cbb_train%>%select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR),
+  method = "knn",
+  tuneGrid = data.frame(k = c(1,2,3,4,5,6)),
+  trControl = trainControl(method = "cv", number = 5),
+  na.action = na.omit
+)
+
+cbb_train%>%
+  mutate(pred_W = predict(knn_adj, 
+                        newdata = cbb_train))%>% ggplot(aes(x = (W), y = (pred_W))) +
+  geom_point(size = .5, alpha = .5) +
+  geom_abline(color = "purple") +
+  geom_smooth(se = FALSE, color = "orange", size = .5) 
+
+knn_adj$results
+```
+
+Our classification tree did not have a great RMSE, but the VIP model was interesting.
+
+```{r, echo=FALSE}
+set.seed(253)
+cbb_tree <- train(
+  W ~ ADJOE + ADJDE + `EFG_O` + `EFG_D` + TOR + TORD + ORB + DRB + FTR + FTRD ,
+  data = cbb_train, 
+  method = "rpart",
+  trControl = trainControl(method = "cv",
+                           number = 5),
+    tuneGrid = data.frame(cp = 10^seq(-4, -2 , length = 20))
+)
+
+
+```
+
+Variable Importance Plot
+
+```{r}
+vip(cbb_tree$finalModel, num_features = 12, bar = FALSE)
+```
+
+This shows adjusted offensive efficiency as an extremely important predictor. This makes sense, as it is the "adjusted offensive efficiency" rating of a team. Meaning, how efficient are they offensively. 
+
+
+
+## Questions we have
+
+Hi Lisa! Thank you for looking over this. 
+
+Right now, I'm wondering what you think of the introduction. Did we explain it enough? 
+
+Should we include some of the intial models we made with the hand selected variables? Or is that not relevant? 
+
+Should we add anything between our description of the model building process and the results? Thanks so much!
