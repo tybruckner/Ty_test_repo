@@ -87,10 +87,96 @@ However, the models we made including all of the variables in the dataset perfor
 
 # Results 
 
-We will 
+We will discuss our best model based on RMSE here. We haven't ran the test data yet, so we will see which model performs the best! 
 
 
 
+Here are some of the models we've created so far. 
+
+Lasso
+
+```{r}
+lambda_grid <- 10^seq(-3, 1, length = 100)
+
+set.seed(253)
+cbb_lasso <- train(
+  W ~ .,
+  data = cbb_train %>% select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR),
+  method = "glmnet",
+  trControl = trainControl(method="cv",number=5),
+  tuneGrid = data.frame(alpha = 1, lambda = lambda_grid),
+  na.action = na.omit
+)
+
+cbb_lasso$results
+
+cbb_lasso$bestTune
+
+coefficients(cbb_lasso$finalModel,.003351603)
+
+```
+
+
+KNN
+
+```{r}
+knn_mod <- recipe(W ~ ., data = cbb_train%>% select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR)) %>%
+  step_center(all_numeric(), -all_outcomes()) %>%
+  step_scale(all_numeric(), -all_outcomes()) %>% 
+  step_dummy(all_nominal())
+
+set.seed(253)
+knn_adj <- train(
+  knn_mod,
+  data = cbb_train%>%select(-SEED, -POSTSEASON,-G,-TEAM,-CONF,-YEAR),
+  method = "knn",
+  tuneGrid = data.frame(k = c(1,2,3,4,5,6)),
+  trControl = trainControl(method = "cv", number = 5),
+  na.action = na.omit
+)
+
+cbb_train%>%
+  mutate(pred_W = predict(knn_adj, 
+                        newdata = cbb_train))%>% ggplot(aes(x = (W), y = (pred_W))) +
+  geom_point(size = .5, alpha = .5) +
+  geom_abline(color = "purple") +
+  geom_smooth(se = FALSE, color = "orange", size = .5) 
+
+knn_adj$results
+```
+
+Our classification tree did not have a great RMSE, but the VIP model was interesting.
+
+```{r, echo=FALSE}
+set.seed(253)
+cbb_tree <- train(
+  W ~ ADJOE + ADJDE + `EFG_O` + `EFG_D` + TOR + TORD + ORB + DRB + FTR + FTRD ,
+  data = cbb_train, 
+  method = "rpart",
+  trControl = trainControl(method = "cv",
+                           number = 5),
+    tuneGrid = data.frame(cp = 10^seq(-4, -2 , length = 20))
+)
+
+
+```
+
+Variable Importance Plot
+
+```{r}
+vip(cbb_tree$finalModel, num_features = 12, bar = FALSE)
+```
+
+This shows adjusted offensive efficiency as an extremely important predictor. This makes sense, as it is the "adjusted offensive efficiency" rating of a team. Meaning, how efficient are they offensively. 
 
 
 
+## Questions we have
+
+Hi Lisa! Thank you for looking over this. 
+
+Right now, I'm wondering what you think of the introduction. Did we explain it enough? 
+
+Should we include some of the intial models we made with the hand selected variables? Or is that not relevant? 
+
+Should we add anything between our description of the model building process and the results? Thanks so much!
