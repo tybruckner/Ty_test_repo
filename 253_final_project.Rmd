@@ -180,3 +180,4 @@ Right now, I'm wondering what you think of the introduction. Did we explain it e
 Should we include some of the intial models we made with the hand selected variables? Or is that not relevant? 
 
 Should we add anything between our description of the model building process and the results? Thanks so much!
+New
