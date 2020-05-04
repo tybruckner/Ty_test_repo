@@ -56,11 +56,9 @@ cbb_test <- testing(cbb_split)
 
 # Introduction to the data and research question
 
-This data comes from Kaggle and was compiled and cleaned by Andrew Sundberg. This dataset is a compilation of all the win/loss records and other important statistics from all Division One men's basketball programs between 2016 and 2019 for the Power Five conferences (five biggest D1 conferences). It includes descriptive statistics like conference name and number of wins, in addition to statistics that evaluate play, such as adjusted offensive efficiency, adjusted defensive efficiency, 3 point percentage, free throws, BARTHAG (chance of beating an "average" Division One team), 
+This data comes from Kaggle and was compiled and cleaned by Andrew Sundberg. This dataset is a compilation of all the win/loss records and other important statistics from all Division One men's basketball programs between 2016 and 2019 for the Power Five conferences (five biggest D1 conferences). It includes descriptive statistics like conference name and number of wins, in addition to statistics that evaluate play, such as adjusted offensive efficiency, adjusted defensive efficiency, 3 point percentage, free throws, BARTHAG (chance of beating an "average" Division One team), offensive and defensive turnovers, and 3 point percentages, among many other important performance based statistics. 
 
-
-
-As this dataset includes all of the many of the most popular basketball metrics, we are interested in building a model that most effectively predicts wins, our response variable. 
+Our goal for this project is to create the model to pred
 
 ## Our research question 
 
